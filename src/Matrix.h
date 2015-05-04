@@ -13,7 +13,7 @@
 #import <hdf5.h>
 #import <Block.h>
 #import <complex.h>
-#import <CommonDSP.h>
+#import "CommonDSP.h"
 
 #ifdef __cplusplus
 extern "C"

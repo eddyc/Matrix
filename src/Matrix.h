@@ -38,7 +38,6 @@ extern "C"
         bool *isComplex;
         bool isSubmatrix;
         char *label;
-        
     } Matrix;
     
 #pragma mark - Allocation / Deallocation -

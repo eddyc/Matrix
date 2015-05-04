@@ -6,8 +6,20 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4466954F1AF7D77500A11364 /* Matrix.h in Headers */ = {isa = PBXBuildFile; fileRef = 4466954D1AF7D77500A11364 /* Matrix.h */; };
+		446695501AF7D77500A11364 /* Matrix.c in Sources */ = {isa = PBXBuildFile; fileRef = 4466954E1AF7D77500A11364 /* Matrix.c */; };
+		446695521AF7D82500A11364 /* CommonDSP.h in Headers */ = {isa = PBXBuildFile; fileRef = 446695511AF7D82500A11364 /* CommonDSP.h */; };
+		446695551AF7D85D00A11364 /* libhdf5.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 446695531AF7D85D00A11364 /* libhdf5.9.dylib */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		446695451AF7D50E00A11364 /* libMatrix.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libMatrix.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4466954D1AF7D77500A11364 /* Matrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix.h; sourceTree = "<group>"; };
+		4466954E1AF7D77500A11364 /* Matrix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Matrix.c; sourceTree = "<group>"; };
+		446695511AF7D82500A11364 /* CommonDSP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommonDSP.h; sourceTree = "<group>"; };
+		446695531AF7D85D00A11364 /* libhdf5.9.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libhdf5.9.dylib; path = /usr/local/Cellar/hdf5/1.8.14/lib/libhdf5.9.dylib; sourceTree = "<absolute>"; };
+		446695581AF7D89200A11364 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -15,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				446695551AF7D85D00A11364 /* libhdf5.9.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -24,6 +37,9 @@
 		4466953C1AF7D50E00A11364 = {
 			isa = PBXGroup;
 			children = (
+				446695581AF7D89200A11364 /* README.md */,
+				446695571AF7D86400A11364 /* Libraries */,
+				4466954C1AF7D74E00A11364 /* src */,
 				446695461AF7D50E00A11364 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -36,6 +52,24 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		4466954C1AF7D74E00A11364 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				446695511AF7D82500A11364 /* CommonDSP.h */,
+				4466954D1AF7D77500A11364 /* Matrix.h */,
+				4466954E1AF7D77500A11364 /* Matrix.c */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		446695571AF7D86400A11364 /* Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				446695531AF7D85D00A11364 /* libhdf5.9.dylib */,
+			);
+			name = Libraries;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -43,6 +77,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4466954F1AF7D77500A11364 /* Matrix.h in Headers */,
+				446695521AF7D82500A11364 /* CommonDSP.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -102,6 +138,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				446695501AF7D77500A11364 /* Matrix.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -191,6 +228,16 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					/usr/local/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/hdf5/1.8.14/lib,
+					/usr/local/Cellar/libwebsockets/1.3/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -201,6 +248,16 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					/usr/local/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/hdf5/1.8.14/lib,
+					/usr/local/Cellar/libwebsockets/1.3/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

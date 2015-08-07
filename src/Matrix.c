@@ -32,6 +32,7 @@ OVERLOADED Matrix *Matrix_new(size_t rowCount , size_t columnCount)
     self->label = "none";
     self->isComplex = &staticFalse;
     self->isSubmatrix = false;
+    self->dataOnStack = false;
     memcpy((void *)&self->allocatedElementCount, &self->elementCount, sizeof(size_t));
     
     return self;
@@ -56,7 +57,7 @@ OVERLOADED Matrix *Matrix_new(Matrix *input)
 }
 
 
-OVERLOADED Matrix Matrix_new(Float64 *data, size_t rowCount, size_t columnCount)
+OVERLOADED Matrix Matrix_new(Float64 data[], size_t rowCount, size_t columnCount)
 {
     Matrix self = {0};
     
@@ -68,19 +69,30 @@ OVERLOADED Matrix Matrix_new(Float64 *data, size_t rowCount, size_t columnCount)
     self.columnStride = rowCount;
     self.isComplex = &staticFalse;
     self.isSubmatrix = false;
+    self.dataOnStack = true;
     memcpy((void *)&self.allocatedElementCount, &self.elementCount, sizeof(size_t));
     
     return self;
 }
 
+OVERLOADED Matrix Matrix_new(Float64 data[], size_t columnCount)
+{
+    Matrix self = Matrix_new(data, 1, columnCount);
+    return self;
+}
+
 void Matrix_delete(Matrix *self)
 {
-    free(self->data);
-    free(self->imagData);
-    free(self->tempData);
-    free(self->tempImagData);
-    free(self);
-    self = NULL;
+    if (self->dataOnStack == false) {
+        
+        free(self->data);
+        free(self->imagData);
+        free(self->tempData);
+        free(self->tempImagData);
+        free(self);
+    }
+    
+    *self = (Matrix){0};
 }
 
 void Matrix_scopedDelete(Matrix **self)
@@ -1157,6 +1169,16 @@ OVERLOADED void Matrix_ramp(Matrix *input, Float64 startValue, Float64 increment
     vDSP_vrampD(&startValue, &increment, input->data, 1, input->elementCount);
 }
 
+
+OVERLOADED Matrix *Matrix_ramp(Float64 startValue, Float64 endValue, Float64 increment)
+{
+    endValue += increment;
+    size_t columnCount = (endValue - startValue) / increment;
+    Matrix *result = Matrix_new(1, columnCount);
+    vDSP_vrampD(&startValue, &increment, result->data, 1, result->elementCount);
+    return result;
+}
+
 void Matrix_fillUsingIndexedElements(Matrix *input, Matrix *indices, Matrix *output)
 {
     _Matrix_checkForVector(input);
@@ -1387,6 +1409,66 @@ OVERLOADED void Matrix_complexConjugate(Matrix *input, Matrix *output)
     }
 }
 
+const static size_t NSUM = 25;
+double gaussrand()
+{
+    double x = 0;
+    int i;
+    for(i = 0; i < NSUM; i++)
+        x += (double)rand() / RAND_MAX;
+    
+    x -= NSUM / 2.0;
+    x /= sqrt(NSUM / 12.0);
+    
+    return x;
+}
+
+void Matrix_gaussian(Matrix *input, Float64 mean, Float64 variance)
+{
+    _Matrix_checkForVector(input);
+    
+    for (size_t i = 0; i < input->columnCount; ++i) {
+        
+        input->data[i] = gaussrand();
+    }
+    
+    Matrix_multiply(input, variance);
+    Matrix_add(input, mean);
+}
+
+void Matrix_diagonal(Matrix *input, Matrix *diagonal)
+{
+    _Matrix_checkForVector(diagonal);
+    
+    if (diagonal->elementCount != input->columnCount
+        ||
+        diagonal->elementCount != input->rowCount) {
+        
+        printf("Matrix_diagonal:Error, input dimensions not equal to diagonal\n Exiting...");
+        exit(-1);
+    }
+    
+    for (size_t i = 0; i < diagonal->elementCount; ++i) {
+        
+        Matrix_getRow(input, i)[i] = diagonal->data[i];
+    }
+}
+
+void Matrix_identity(Matrix *input)
+{
+    if (input->rowCount != input->columnCount) {
+        
+        printf("Matrix_identity:Error, input dimensions not equal to diagonal\n Exiting...");
+        exit(-1);
+    }
+    
+    Matrix_clear(input);
+    
+    for (size_t i = 0; i < input->rowCount; ++i) {
+        
+        Matrix_getRow(input, i)[i] = 1;
+    }
+}
 
 #pragma mark - Arithmetic functions -
 
@@ -1790,6 +1872,27 @@ OVERLOADED void Matrix_multiply(Matrix *inputA,
             vDSP_vmulD(inputA->data, 1, inputB->data, 1, result->data, 1, result->elementCount);
         }
     }
+}
+
+void Matrix_dotProduct(Matrix *inputA, Matrix *inputB, Matrix *output)
+{
+    if (inputA->columnCount != inputB->rowCount
+        ||
+        inputB->columnCount != output->columnCount
+        ||
+        inputA->rowCount != output->rowCount) {
+        
+        printf("Matrix_dotProduct: Error, Exiting\n");
+        exit(-1);
+    }
+    
+    if (inputA == output || inputB == output) {
+        
+        printf("Matrix_dotProduct: Error, Exiting\n");
+        exit(-1);
+    }
+    
+    vDSP_mmulD(inputA->data, 1, inputB->data, 1, output->data, 1, inputA->rowCount, inputB->columnCount, inputA->columnCount);
 }
 
 OVERLOADED void Matrix_divide(Matrix input, Float64 scalar)
@@ -2441,6 +2544,13 @@ void Matrix_maximum(Matrix *input, Float64 *maximum, size_t *index)
     _Matrix_checkIsEmpty(input);
     
     vDSP_maxviD(input->data, 1, maximum, index, input->elementCount);
+}
+
+void Matrix_domain(Matrix *input, Float64 domain[2])
+{
+    size_t index;
+    Matrix_minimum(input, &domain[0], &index);
+    Matrix_maximum(input, &domain[1], &index);
 }
 
 size_t Matrix_countElements(Matrix *input, bool (^comparison)(Float64))

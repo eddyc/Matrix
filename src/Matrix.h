@@ -37,16 +37,17 @@ extern "C"
         Float64 *tempImagData;
         bool *isComplex;
         bool isSubmatrix;
+        bool dataOnStack;
         char *label;
     } Matrix;
-    
+   
 #pragma mark - Allocation / Deallocation -
     
     OVERLOADED Matrix *Matrix_new(size_t rowCount , size_t columnCount);
     OVERLOADED Matrix *Matrix_new(size_t rowCount , size_t columnCount, char label[]);
     OVERLOADED Matrix *Matrix_new(Matrix *input);
-    OVERLOADED Matrix Matrix_new(Float64 *data, size_t rowCount, size_t columnCount);
-    
+    OVERLOADED Matrix Matrix_new(Float64 data[], size_t rowCount, size_t columnCount);
+    OVERLOADED Matrix Matrix_new(Float64 data[], size_t columnCount);
     void Matrix_delete(Matrix *self);
     void Matrix_scopedDelete(Matrix **self);
 #define _Matrix __attribute__((unused)) __attribute__((cleanup(Matrix_scopedDelete))) Matrix
@@ -240,6 +241,7 @@ extern "C"
     
     OVERLOADED void Matrix_ramp(Matrix input, Float64 startValue, Float64 increment);
     OVERLOADED void Matrix_ramp(Matrix *input, Float64 startValue, Float64 increment);
+    OVERLOADED Matrix *Matrix_ramp(Float64 startValue, Float64 endValue, Float64 increment);
     
     OVERLOADED void Matrix_fillElements(Matrix *input, CompareElement comparison, Matrix *result);
     OVERLOADED void Matrix_fillElements(Matrix *input, CompareIndex comparison, Matrix *result);
@@ -254,6 +256,10 @@ extern "C"
     OVERLOADED void Matrix_unique(Matrix *input, Matrix *output);
     
     OVERLOADED void Matrix_complexConjugate(Matrix *input, Matrix *output);
+    
+    void Matrix_gaussian(Matrix *input, Float64 mean, Float64 variance);
+    void Matrix_diagonal(Matrix *input, Matrix *diagonal);
+    void Matrix_identity(Matrix *input);
 #pragma mark - Arithmetic functions -
     
     OVERLOADED void Matrix_add(Matrix input, Float64 scalar);
@@ -279,7 +285,7 @@ extern "C"
     OVERLOADED void Matrix_multiply(Matrix *inputA,
                                     Matrix *inputB,
                                     Matrix *result);
-    
+    void Matrix_dotProduct(Matrix *inputA, Matrix *inputB, Matrix *output);
     OVERLOADED void Matrix_divide(Matrix input, Float64 scalar);
     OVERLOADED void Matrix_divide(Matrix *input, Float64 scalar);
     OVERLOADED void Matrix_divide(Matrix *input, Float64 scalar, Matrix *output);
@@ -328,6 +334,7 @@ extern "C"
     
     void Matrix_minimum(Matrix *input, Float64 *minimum, size_t *index);
     void Matrix_maximum(Matrix *input, Float64 *maximum, size_t *index);
+    void Matrix_domain(Matrix *input, Float64 domain[2]);
     size_t Matrix_countElements(Matrix *input, bool (^comparison)(Float64));
     
 #pragma mark - Other functions -
